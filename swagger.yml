@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: "Football Teams and Players API"
+  description: "API REST con Flask y SQLAlchemy - Relación Uno a Muchos"
+  version: "1.0.0"
+servers:
+  - url: "/api"
+
+paths:
+  /teams:
+    get:
+      operationId: "teams.read_all"
+      tags:
+        - Teams
+      summary: "Obtener todos los equipos con sus jugadores"
+      responses:
+        "200":
+          description: "Lista de equipos"
+    post:
+      operationId: "teams.create"
+      tags:
+        - Teams
+      summary: "Crear un nuevo equipo"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Team"
+      responses:
+        "201":
+          description: "Equipo creado"
+
+  /teams/{name}:
+    get:
+      operationId: "teams.read_one"
+      tags:
+        - Teams
+      summary: "Obtener un equipo por nombre"
+      parameters:
+        - name: "name"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Datos del equipo"
+    delete:
+      operationId: "teams.delete"
+      tags:
+        - Teams
+      summary: "Eliminar un equipo y sus jugadores"
+      parameters:
+        - name: "name"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        "200":
+          description: "Equipo eliminado"
+
+  /players:
+    get:
+      operationId: "players.read_all"
+      tags:
+        - Players
+      summary: "Obtener todos los jugadores"
+      responses:
+        "200":
+          description: "Lista de jugadores"
+
+  /teams/{team_id}/players:
+    post:
+      operationId: "players.create"
+      tags:
+        - Players
+      summary: "Crear un jugador asociado a un equipo"
+      parameters:
+        - name: "team_id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Player"
+      responses:
+        "201":
+          description: "Jugador creado"
+
+  /players/{player_id}:
+    get:
+      operationId: "players.read_one"
+      tags:
+        - Players
+      summary: "Obtener un jugador por ID"
+      parameters:
+        - name: "player_id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "200":
+          description: "Datos del jugador"
+    put:
+      operationId: "players.update"
+      tags:
+        - Players
+      summary: "Actualizar un jugador (permite cambiarlo de equipo pasando un nuevo team_id)"
+      parameters:
+        - name: "player_id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Player"
+      responses:
+        "200":
+          description: "Jugador actualizado"
+    delete:
+      operationId: "players.delete"
+      tags:
+        - Players
+      summary: "Eliminar un jugador"
+      parameters:
+        - name: "player_id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        "200":
+          description: "Jugador eliminado"
+
+components:
+  schemas:
+    Team:
+      type: "object"
+      required:
+        - name
+      properties:
+        id:
+          type: "integer"
+          readOnly: true
+        name:
+          type: "string"
+        city:
+          type: "string"
+        players:
+          type: "array"
+          items:
+            $ref: "#/components/schemas/Player"
+          readOnly: true
+
+    Player:
+      type: "object"
+      required:
+        - name
+      properties:
+        id:
+          type: "integer"
+          readOnly: true
+        team_id:
+          type: "integer"
+        name:
+          type: "string"
+        position:
+          type: "string"
+        number:
+          type: "integer"
